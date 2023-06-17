@@ -1,4 +1,6 @@
 # Make and install tzdb code and data.
+# Request POSIX conformance; this must be the first non-comment line.
+.POSIX:
 
 # This file is in the public domain, so clarified as of
 # 2009-05-17 by Arthur David Olson.
@@ -235,6 +237,8 @@ LDLIBS=
 #  -DHAVE_UTMPX_H=0 if <utmpx.h> does not work*
 #  -Dlocale_t=XXX if your system uses XXX instead of locale_t
 #  -DPORT_TO_C89 if tzcode should also run on C89 platforms+
+#	Typically it is better to use a later standard.  For example,
+#	with GCC 4.9.4 (2016), prefer '-std=gnu11' to '-DPORT_TO_C89'.
 #  -DRESERVE_STD_EXT_IDS if your platform reserves standard identifiers
 #	with external linkage, e.g., applications cannot define 'localtime'.
 #  -Dssize_t=long on hosts like MS-Windows that lack ssize_t
