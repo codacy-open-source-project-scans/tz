@@ -2,6 +2,14 @@ News for the tz database
 
 Unreleased, experimental changes
 
+  Briefly:
+    Code and data fixes for Palestine timestamps starting in 2072.
+
+  Changes to future timestamps
+
+    Fix predictions for DST transitions in Palestine in 2072-2075,
+    correcting a typo introduced in 2023a.
+
   Changes to past and future tm_isdst flags
 
     Much of Greenland, represented by America/Nuuk, changed its
@@ -10,6 +18,14 @@ Unreleased, experimental changes
     (Thanks to Thomas M. Steenholdt.)
 
   Changes to code
+
+    localtime.c no longer mishandles TZif files that contain a single
+    transition into a DST regime.  Previously, it incorrectly assumed
+    DST was in effect before the transition too.
+
+    zic no longer mishandles data for Palestine after the year 2075.
+    Previously, it incorrectly omitted post-2075 transitions that are
+    predicted for just before and just after Ramadan.
 
     zic now works again on Linux 2.6.16 and 2.6.17 (2006).
     (Problem reported by Rune Torgersen.)

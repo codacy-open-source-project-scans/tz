@@ -1020,7 +1020,8 @@ main(int argc, char **argv)
 					directory = optarg;
 				else {
 					fprintf(stderr,
-_("%s: More than one -d option specified\n"),
+						_("%s: More than one -d option"
+						  " specified\n"),
 						progname);
 					return EXIT_FAILURE;
 				}
@@ -1030,7 +1031,8 @@ _("%s: More than one -d option specified\n"),
 					lcltime = optarg;
 				else {
 					fprintf(stderr,
-_("%s: More than one -l option specified\n"),
+						_("%s: More than one -l option"
+						  " specified\n"),
 						progname);
 					return EXIT_FAILURE;
 				}
@@ -1040,7 +1042,8 @@ _("%s: More than one -l option specified\n"),
 					psxrules = optarg;
 				else {
 					fprintf(stderr,
-_("%s: More than one -p option specified\n"),
+						_("%s: More than one -p option"
+						  " specified\n"),
 						progname);
 					return EXIT_FAILURE;
 				}
@@ -1063,7 +1066,8 @@ _("%s: More than one -p option specified\n"),
 					leapsec = optarg;
 				else {
 					fprintf(stderr,
-_("%s: More than one -L option specified\n"),
+						_("%s: More than one -L option"
+						  " specified\n"),
 						progname);
 					return EXIT_FAILURE;
 				}
@@ -1074,13 +1078,14 @@ _("%s: More than one -L option specified\n"),
 			case 'r':
 				if (timerange_given) {
 				  fprintf(stderr,
-_("%s: More than one -r option specified\n"),
+					  _("%s: More than one -r option"
+					    " specified\n"),
 					  progname);
 				  return EXIT_FAILURE;
 				}
 				if (! timerange_option(optarg)) {
 				  fprintf(stderr,
-_("%s: invalid time range: %s\n"),
+					  _("%s: invalid time range: %s\n"),
 					  progname, optarg);
 				  return EXIT_FAILURE;
 				}
@@ -1875,16 +1880,14 @@ inzone(char **fields, int nfields)
 		return false;
 	}
 	if (lcltime != NULL && strcmp(fields[ZF_NAME], tzdefault) == 0) {
-		error(
-_("\"Zone %s\" line and -l option are mutually exclusive"),
-			tzdefault);
-		return false;
+	  error(_("\"Zone %s\" line and -l option are mutually exclusive"),
+		tzdefault);
+	  return false;
 	}
 	if (strcmp(fields[ZF_NAME], TZDEFRULES) == 0 && psxrules != NULL) {
-		error(
-_("\"Zone %s\" line and -p option are mutually exclusive"),
-			TZDEFRULES);
-		return false;
+	  error(_("\"Zone %s\" line and -p option are mutually exclusive"),
+		TZDEFRULES);
+	  return false;
 	}
 	for (i = 0; i < nzones; ++i)
 		if (zones[i].z_name != NULL &&
@@ -1976,10 +1979,9 @@ inzsub(char **fields, int nfields, bool iscont)
 			zones[nzones - 1].z_untiltime > min_time &&
 			zones[nzones - 1].z_untiltime < max_time &&
 			zones[nzones - 1].z_untiltime >= z.z_untiltime) {
-				error(_(
-"Zone continuation line end time is not after end time of previous line"
-					));
-				return false;
+		  error(_("Zone continuation line end time is"
+			  " not after end time of previous line"));
+		  return false;
 		}
 	}
 	z.z_name = iscont ? NULL : estrdup(fields[ZF_NAME]);
@@ -2980,6 +2982,10 @@ rule_cmp(struct rule const *a, struct rule const *b)
 	return a->r_dayofmonth - b->r_dayofmonth;
 }
 
+/* Store into RESULT a POSIX TZ string that represent the future
+   predictions for the zone ZPFIRST with ZONECOUNT entries.  Return a
+   compatibility indicator (a TZDB release year) if successful, a
+   negative integer if no such TZ string exissts.  */
 static int
 stringzone(char *result, struct zone const *zpfirst, ptrdiff_t zonecount)
 {
@@ -3119,7 +3125,8 @@ outzone(const struct zone *zpfirst, ptrdiff_t zonecount)
 	register int			compat;
 	register bool			do_extend;
 	register char			version;
-	ptrdiff_t lastatmax = -1;
+	zic_t nonTZlimtime = ZIC_MIN;
+	int nonTZlimtype = -1;
 	zic_t max_year0;
 	int defaulttype = -1;
 
@@ -3235,7 +3242,6 @@ outzone(const struct zone *zpfirst, ptrdiff_t zonecount)
 	  unspecifiedtype = addtype(0, "-00", false, false, false);
 
 	for (i = 0; i < zonecount; ++i) {
-		struct rule *prevrp = NULL;
 		/*
 		** A guess that may well be corrected later.
 		*/
@@ -3245,8 +3251,6 @@ outzone(const struct zone *zpfirst, ptrdiff_t zonecount)
 		bool useuntil = i < (zonecount - 1);
 		zic_t stdoff = zp->z_stdoff;
 		zic_t startoff = stdoff;
-		zic_t prevktime;
-		INITIALIZE(prevktime);
 		if (useuntil && zp->z_untiltime <= min_time)
 			continue;
 		eat(zp->z_filenum, zp->z_linenum);
@@ -3260,6 +3264,10 @@ outzone(const struct zone *zpfirst, ptrdiff_t zonecount)
 				startttisut);
 			if (usestart) {
 				addtt(starttime, type);
+				if (useuntil && nonTZlimtime < starttime) {
+				  nonTZlimtime = starttime;
+				  nonTZlimtype = type;
+				}
 				usestart = false;
 			} else
 				defaulttype = type;
@@ -3387,23 +3395,16 @@ outzone(const struct zone *zpfirst, ptrdiff_t zonecount)
 				doabbr(ab, zp, rp->r_abbrvar,
 				       rp->r_isdst, rp->r_save, false);
 				offset = oadd(zp->z_stdoff, rp->r_save);
-				if (!want_bloat() && !useuntil && !do_extend
-				    && prevrp && lo_time <= prevktime
-				    && redundant_time <= ktime
-				    && rp->r_hiyear == ZIC_MAX
-				    && prevrp->r_hiyear == ZIC_MAX)
-				  break;
 				type = addtype(offset, ab, rp->r_isdst,
 					rp->r_todisstd, rp->r_todisut);
 				if (defaulttype < 0 && !rp->r_isdst)
 				  defaulttype = type;
-				if (rp->r_hiyear == ZIC_MAX
-				    && ! (0 <= lastatmax
-					  && ktime < attypes[lastatmax].at))
-				  lastatmax = timecnt;
 				addtt(ktime, type);
-				prevrp = rp;
-				prevktime = ktime;
+				if (nonTZlimtime < ktime
+				    && (useuntil || rp->r_hiyear != ZIC_MAX)) {
+				  nonTZlimtime = ktime;
+				  nonTZlimtype = type;
+				}
 			}
 		  }
 		}
@@ -3414,7 +3415,8 @@ outzone(const struct zone *zpfirst, ptrdiff_t zonecount)
 				 isdst, save, false);
 			eat(zp->z_filenum, zp->z_linenum);
 			if (*startbuf == '\0')
-error(_("can't determine time zone abbreviation to use just after until time"));
+			  error(_("can't determine time zone abbreviation"
+				  " to use just after until time"));
 			else {
 			  int type = addtype(startoff, startbuf, isdst,
 					     startttisstd, startttisut);
@@ -3438,8 +3440,30 @@ error(_("can't determine time zone abbreviation to use just after until time"));
 	}
 	if (defaulttype < 0)
 	  defaulttype = 0;
-	if (0 <= lastatmax)
-	  attypes[lastatmax].dontmerge = true;
+	if (!do_extend && !want_bloat()) {
+	  /* The earliest transition into a time governed by the TZ string.  */
+	  zic_t TZstarttime = ZIC_MAX;
+	  for (i = 0; i < timecnt; i++) {
+	    zic_t at = attypes[i].at;
+	    if (nonTZlimtime < at && at < TZstarttime)
+	      TZstarttime = at;
+	  }
+	  if (TZstarttime == ZIC_MAX)
+	    TZstarttime = nonTZlimtime;
+
+	  /* Omit trailing transitions deducible from the TZ string.  */
+	  for (i = j = 0; i < timecnt; i++)
+	    if (redundant_time <= attypes[i].at
+		&& attypes[i].at <= TZstarttime) {
+	      attypes[j].at = attypes[i].at;
+	      attypes[j].dontmerge = (attypes[i].at == TZstarttime
+				      && (nonTZlimtype != attypes[i].type
+					  || strchr(envvar, ',')));
+	      attypes[j].type = attypes[i].type;
+	      j++;
+	    }
+	  timecnt = j;
+	}
 	if (do_extend) {
 		/*
 		** If we're extending the explicitly listed observations
