@@ -18,7 +18,7 @@ Unreleased, experimental changes
     Fix predictions for DST transitions in Palestine in 2072-2075,
     correcting a typo introduced in 2023a.
 
-  Changes to past and future tm_isdst flags
+  Changes to past tm_isdst flags
 
     Much of Greenland, represented by America/Nuuk, changed its
     standard time from -03 to -02 on 2023-03-25, not on 2023-10-28.
@@ -119,7 +119,7 @@ Release 2023a - 2023-03-22 12:39:33 -0700
     a C89 environment, compile with -DPORT_TO_C89.  To support C89
     callers of the tzcode library, compile with -DSUPPORT_C89.  The
     two new macros are transitional aids planned to be removed in a
-    future version, when C99 or later will be required.
+    future version (say, in 2029), when C99 or later will be required.
 
     The code now builds again on pre-C99 platforms, if you compile
     with -DPORT_TO_C89.  This fixes a bug introduced in 2022f.
@@ -4506,8 +4506,8 @@ Release data2011m - 2011-10-24 21:42:16 +0700
   In particular, the typos in comments in the data (2011-11-17 should have
   been 2011-10-17 as Alan Barrett noted, and spelling of Tiraspol that
   Tim Parenti noted) have been fixed, and the change for Ukraine has been
-  made in all 4 Ukrainian zones, rather than just Kiev (again, thanks to
-  Tim Parenti, and also Denys Gavrysh)
+  made in all 4 Ukrainian zones, rather than just Europe/Kiev
+  (again, thanks to Tim Parenti, and also Denys Gavrysh).
 
   In addition, I added Europe/Tiraspol to zone.tab.
 
