@@ -29,7 +29,11 @@ Unreleased, experimental changes
 
     localtime.c no longer mishandles TZif files that contain a single
     transition into a DST regime.  Previously, it incorrectly assumed
-    DST was in effect before the transition too.
+    DST was in effect before the transition too.  (Thanks to Alois
+    Treindl for debugging help.)
+
+    tzselect no longer mishandles spaces and most other special
+    characters in BUGEMAIL, PACKAGE, TZDIR, and VERSION.
 
     zic no longer mishandles data for Palestine after the year 2075.
     Previously, it incorrectly omitted post-2075 transitions that are
@@ -37,6 +41,23 @@ Unreleased, experimental changes
 
     zic now works again on Linux 2.6.16 and 2.6.17 (2006).
     (Problem reported by Rune Torgersen.)
+
+  Changes to build procedure
+
+    The Makefile is now more compatible with POSIX:
+     * It no longer defines AR, CC, CFLAGS, LDFLAGS, and SHELL.
+     * It no longer uses its own 'cc' in place of CC.
+     * It now uses ARFLAGS, with default specified by POSIX.
+     * It does not use LFLAGS incompatibly with POSIX.
+    Due to the CC changes, TZDIR is now #defined in a file tzfile.h
+    built by 'make', not in a $(CC) -D option.  Also, TZDEFAULT is
+    now treated like TZDIR as they have similar roles.
+
+  Changes to commentary
+
+     Limitations and hazards of the optional support for obsolescent
+     C89 platforms are documented better, along with a tentative
+     schedule for removing this support.
 
 
 Release 2023c - 2023-03-28 12:42:14 -0700
@@ -115,11 +136,14 @@ Release 2023a - 2023-03-22 12:39:33 -0700
     platform dependent and abbreviations were silently truncated to
     16 bytes even when the limit was greater than 16.
 
-    The code by default is now designed for C99 or later.  To build in
-    a C89 environment, compile with -DPORT_TO_C89.  To support C89
-    callers of the tzcode library, compile with -DSUPPORT_C89.  The
-    two new macros are transitional aids planned to be removed in a
-    future version (say, in 2029), when C99 or later will be required.
+    The code by default is now designed for C99 or later.  To build on
+    a mostly-C89 platform, compile with -DPORT_TO_C89; this should
+    work on C89 platforms that also support C99 'long long' and
+    perhaps a few other extensions to C89.  To support C89 callers of
+    tzcode's library, compile with -DSUPPORT_C89; however, this could
+    trigger latent bugs in C99-or-later callers.  The two new macros
+    are transitional aids planned to be removed in a future version
+    (say, in 2029), when C99 or later will be required.
 
     The code now builds again on pre-C99 platforms, if you compile
     with -DPORT_TO_C89.  This fixes a bug introduced in 2022f.
@@ -4341,7 +4365,7 @@ Release 2012j - 2012-11-12 18:34:49 -0800
   now uses tz@iana.org rather than the old elsie address.
 
   zic -v now complains about abbreviations that are less than 3
-  or more than 6 characters, as per Posix.  Formerly, it checked
+  or more than 6 characters, as per POSIX.  Formerly, it checked
   for abbreviations that were more than 3.
 
   'make public' no longer puts its temporary directory under /tmp,

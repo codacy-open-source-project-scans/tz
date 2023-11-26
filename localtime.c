@@ -15,6 +15,7 @@
 #define LOCALTIME_IMPLEMENTATION
 #include "private.h"
 
+#include "tzdir.h"
 #include "tzfile.h"
 #include <fcntl.h>
 
@@ -869,8 +870,8 @@ getsecs(register const char *strp, int_fast32_t *const secsp)
 	int_fast32_t secsperhour = SECSPERHOUR;
 
 	/*
-	** 'HOURSPERDAY * DAYSPERWEEK - 1' allows quasi-Posix rules like
-	** "M10.4.6/26", which does not conform to Posix,
+	** 'HOURSPERDAY * DAYSPERWEEK - 1' allows quasi-POSIX rules like
+	** "M10.4.6/26", which does not conform to POSIX,
 	** but which specifies the equivalent of
 	** "02:00 on the first Sunday on or after 23 Oct".
 	*/
@@ -1115,6 +1116,7 @@ tzparse(const char *name, struct state *sp, struct state const *basep)
 	}
 	if (0 < sp->leapcnt)
 	  leaplo = sp->lsis[sp->leapcnt - 1].ls_trans;
+	sp->goback = sp->goahead = false;
 	if (*name != '\0') {
 		if (*name == '<') {
 			dstname = ++name;
@@ -1162,7 +1164,6 @@ tzparse(const char *name, struct state *sp, struct state const *basep)
 			*/
 			init_ttinfo(&sp->ttis[0], -stdoffset, false, 0);
 			init_ttinfo(&sp->ttis[1], -dstoffset, true, stdlen + 1);
-			sp->defaulttype = 0;
 			timecnt = 0;
 			janfirst = 0;
 			yearbeg = EPOCH_YEAR;
@@ -1322,15 +1323,14 @@ tzparse(const char *name, struct state *sp, struct state const *basep)
 			init_ttinfo(&sp->ttis[0], -stdoffset, false, 0);
 			init_ttinfo(&sp->ttis[1], -dstoffset, true, stdlen + 1);
 			sp->typecnt = 2;
-			sp->defaulttype = 0;
 		}
 	} else {
 		dstlen = 0;
 		sp->typecnt = 1;		/* only standard time */
 		sp->timecnt = 0;
 		init_ttinfo(&sp->ttis[0], -stdoffset, false, 0);
-		sp->defaulttype = 0;
 	}
+	sp->defaulttype = 0;
 	sp->charcnt = charcnt;
 	cp = sp->chars;
 	memcpy(cp, stdname, stdlen);

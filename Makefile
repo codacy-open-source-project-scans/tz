@@ -1,9 +1,22 @@
 # Make and install tzdb code and data.
+# This file is in the public domain, so clarified as of
+# 2009-05-17 by Arthur David Olson.
 # Request POSIX conformance; this must be the first non-comment line.
 .POSIX:
 
-# This file is in the public domain, so clarified as of
-# 2009-05-17 by Arthur David Olson.
+# To affect how this Makefile works, you can run a shell script like this:
+#
+#	#!/bin/sh
+#	make CC='gcc -std=gnu11' "$@"
+#
+# This example script is appropriate for a pre-2017 GNU/Linux system
+# where a non-default setting is needed to support this package's use of C99.
+#
+# Alternatively, you can simply edit this Makefile to tailor the following
+# macro definitions.
+
+###############################################################################
+# Start of macros that one plausibly might want to tailor.
 
 # Package name for the code distribution.
 PACKAGE=	tzcode
@@ -193,8 +206,9 @@ UTF8_LOCALE=	en_US.utf8
 # On some hosts, this should have -lintl unless CFLAGS has -DHAVE_GETTEXT=0.
 LDLIBS=
 
-# Add the following to the end of the "CFLAGS=" line as needed to override
-# defaults specified in the source code.  "-DFOO" is equivalent to "-DFOO=1".
+# Add the following to an uncommented "CFLAGS=" line as needed
+# to override defaults specified in the source code or by the system.
+# "-DFOO" is equivalent to "-DFOO=1".
 #  -DDEPRECATE_TWO_DIGIT_YEARS for optional runtime warnings about strftime
 #	formats that generate only the last two digits of year numbers
 #  -DEPOCH_LOCAL if the 'time' function returns local time not UT
@@ -236,13 +250,16 @@ LDLIBS=
 #  -DHAVE_UNISTD_H=0 if <unistd.h> does not work*
 #  -DHAVE_UTMPX_H=0 if <utmpx.h> does not work*
 #  -Dlocale_t=XXX if your system uses XXX instead of locale_t
-#  -DPORT_TO_C89 if tzcode should also run on C89 platforms+
+#  -DPORT_TO_C89 if tzcode should also run on mostly-C89 platforms+
 #	Typically it is better to use a later standard.  For example,
 #	with GCC 4.9.4 (2016), prefer '-std=gnu11' to '-DPORT_TO_C89'.
+#	Even with -DPORT_TO_C89, the code needs at least one C99
+#	feature (integers at least 64 bits wide) and maybe more.
 #  -DRESERVE_STD_EXT_IDS if your platform reserves standard identifiers
 #	with external linkage, e.g., applications cannot define 'localtime'.
 #  -Dssize_t=long on hosts like MS-Windows that lack ssize_t
 #  -DSUPPORT_C89 if the tzcode library should support C89 callers+
+#	However, this might trigger latent bugs in C99-or-later callers.
 #  -DSUPPRESS_TZDIR to not prepend TZDIR to file names; this has
 #	security implications and is not recommended for general use
 #  -DTHREAD_SAFE to make localtime.c thread-safe, as POSIX requires;
@@ -274,6 +291,10 @@ LDLIBS=
 #  -DZIC_MAX_ABBR_LEN_WO_WARN=3
 #	(or some other number) to set the maximum time zone abbreviation length
 #	that zic will accept without a warning (the default is 6)
+#  -g to generate symbolic debugging info
+#  -Idir to include from directory 'dir'
+#  -O0 to disable optimization; other -O options to enable more optimization
+#  -Uname to remove any definition of the macro 'name'
 #  $(GCC_DEBUG_FLAGS) if you are using recent GCC and want lots of checking
 #
 # * Options marked "*" can be omitted if your compiler is C23 compatible.
@@ -384,7 +405,7 @@ GCC_DEBUG_FLAGS = -DGCC_LINT -g3 -O3 -fno-common \
 #
 # NIST-PCTS:151-2, Version 1.4, (1993-12-03) is a test suite put
 # out by the National Institute of Standards and Technology
-# which claims to test C and Posix conformance.  If you want to pass PCTS, add
+# which claims to test C and POSIX conformance.  If you want to pass PCTS, add
 #	-DPCTS
 # to the end of the "CFLAGS=" line.
 #
@@ -394,13 +415,21 @@ GCC_DEBUG_FLAGS = -DGCC_LINT -g3 -O3 -fno-common \
 # 53 as a week number (rather than 52 or 53) for January days before
 # January's first Monday when a "%V" format is used and January 1
 # falls on a Friday, Saturday, or Sunday.
+#
+# POSIX says CFLAGS defaults to "-O 1".
+# Uncomment the following line and edit its contents as needed.
 
-CFLAGS=
+#CFLAGS= -O 1
 
-# Linker flags.  Default to $(LFLAGS) for backwards compatibility
-# to release 2012h and earlier.
 
-LDFLAGS=	$(LFLAGS)
+# The name of a POSIX-like library archiver, its flags, C compiler,
+# linker flags, and 'make' utility.  Ordinarily the defaults suffice.
+# The commented-out values are the defaults specified by POSIX 202x/D3.
+#AR = ar
+#ARFLAGS = -rv
+#CC = c17
+#LDFLAGS =
+#MAKE = make
 
 # For leap seconds, this Makefile uses LEAPSECONDS='-L leapseconds' in
 # submake command lines.  The default is no leap seconds.
@@ -424,18 +453,18 @@ ZFLAGS=
 
 ZIC_INSTALL=	$(ZIC) -d '$(DESTDIR)$(TZDIR)' $(LEAPSECONDS)
 
-# The name of a Posix-compliant 'awk' on your system.
+# The name of a POSIX-compliant 'awk' on your system.
 # mawk 1.3.3 and Solaris 10 /usr/bin/awk do not work.
 # Also, it is better (though not essential) if 'awk' supports UTF-8,
 # and unfortunately mawk and busybox awk do not support UTF-8.
 # Try AWK=gawk or AWK=nawk if your awk has the abovementioned problems.
 AWK=		awk
 
-# The full path name of a Posix-compliant shell, preferably one that supports
+# The full path name of a POSIX-compliant shell, preferably one that supports
 # the Korn shell's 'select' statement as an extension.
 # These days, Bash is the most popular.
 # It should be OK to set this to /bin/sh, on platforms where /bin/sh
-# lacks 'select' or doesn't completely conform to Posix, but /bin/bash
+# lacks 'select' or doesn't completely conform to POSIX, but /bin/bash
 # is typically nicer if it works.
 KSHELL=		/bin/bash
 
@@ -509,17 +538,16 @@ GZIPFLAGS=	-9n
 DIFF_TZS=	 diff -u$$(! diff -u -F'^TZ=' - - <>/dev/null >&0 2>&1 \
 			   || echo ' -F^TZ=')
 
-###############################################################################
-
-#MAKE=		make
-
-cc=		cc
-CC=		$(cc) -DTZDIR='"$(TZDIR)"'
-
-AR=		ar
-
 # ':' on typical hosts; 'ranlib' on the ancient hosts that still need ranlib.
 RANLIB=		:
+
+# POSIX prohibits defining or using SHELL.  However, csh users on systems
+# that use the user shell for Makefile commands may need to define SHELL.
+#SHELL=		/bin/sh
+
+# End of macros that one plausibly might want to tailor.
+###############################################################################
+
 
 TZCOBJS=	zic.o
 TZDOBJS=	zdump.o localtime.o asctime.o strftime.o
@@ -590,11 +618,6 @@ VERSION_DEPS= \
 		ziguard.awk zishrink.awk \
 		zone.tab zone1970.tab
 
-# And for the benefit of csh users on systems that assume the user
-# shell should be used to handle commands in Makefiles. . .
-
-SHELL=		/bin/sh
-
 all:		tzselect zic zdump libtz.a $(TABDATA) \
 		  vanguard.zi main.zi rearguard.zi
 
@@ -661,6 +684,16 @@ tzdata.zi:	$(DATAFORM).zi version zishrink.awk
 		    -v version="$$version" \
 		    -f zishrink.awk \
 		    $(DATAFORM).zi >$@.out
+		mv $@.out $@
+
+tzdir.h:
+		printf '%s\n' >$@.out \
+		  '#ifndef TZDEFAULT' \
+		  '# define TZDEFAULT "$(TZDEFAULT)" /* default zone */' \
+		  '#endif' \
+		  '#ifndef TZDIR' \
+		  '# define TZDIR "$(TZDIR)" /* TZif directory */' \
+		  '#endif'
 		mv $@.out $@
 
 version.h:	version
@@ -769,7 +802,7 @@ force_tzs:	$(TZS_NEW)
 
 libtz.a:	$(LIBOBJS)
 		rm -f $@
-		$(AR) -rc $@ $(LIBOBJS)
+		$(AR) $(ARFLAGS) $@ $(LIBOBJS)
 		$(RANLIB) $@
 
 date:		$(DATEOBJS)
@@ -777,13 +810,13 @@ date:		$(DATEOBJS)
 
 tzselect:	tzselect.ksh version
 		VERSION=`cat version` && sed \
-			-e 's|#!/bin/bash|#!$(KSHELL)|g' \
-			-e 's|AWK=[^}]*|AWK='\''$(AWK)'\''|g' \
-			-e 's|\(PKGVERSION\)=.*|\1='\''($(PACKAGE)) '\''|' \
-			-e 's|\(REPORT_BUGS_TO\)=.*|\1=$(BUGEMAIL)|' \
-			-e 's|TZDIR=[^}]*|TZDIR=$(TZDIR)|' \
-			-e 's|\(TZVERSION\)=.*|\1='"$$VERSION"'|' \
-			<$@.ksh >$@.out
+		  -e "s'#!/bin/bash'#!"'$(KSHELL)'\' \
+		  -e s\''\(AWK\)=[^}]*'\''\1=\'\''$(AWK)\'\'\' \
+		  -e s\''\(PKGVERSION\)=.*'\''\1=\'\''($(PACKAGE)) \'\'\' \
+		  -e s\''\(REPORT_BUGS_TO\)=.*'\''\1=\'\''$(BUGEMAIL)\'\'\' \
+		  -e s\''\(TZDIR\)=[^}]*'\''\1=\'\''$(TZDIR)\'\'\' \
+		  -e s\''\(TZVERSION\)=.*'\''\1=\'"'$$VERSION\\''" \
+		  <$@.ksh >$@.out
 		chmod +x $@.out
 		mv $@.out $@
 
@@ -917,10 +950,10 @@ check_zishrink_posix check_zishrink_right: \
 		touch $@
 
 clean_misc:
-		rm -fr check_*.dir
+		rm -fr check_*.dir typecheck_*.dir
 		rm -f *.o *.out $(TIME_T_ALTERNATIVES) \
 		  check_* core typecheck_* \
-		  date tzselect version.h zdump zic libtz.a
+		  date tzdir.h tzselect version.h zdump zic libtz.a
 clean:		clean_misc
 		rm -fr *.dir tzdb-*/
 		rm -f *.zi $(TZS_NEW)
@@ -1024,7 +1057,8 @@ check_public: $(VERSION_DEPS)
 		rm -fr public.dir
 		mkdir public.dir
 		ln $(VERSION_DEPS) public.dir
-		cd public.dir && $(MAKE) CFLAGS='$(GCC_DEBUG_FLAGS)' ALL
+		cd public.dir \
+		  && $(MAKE) CFLAGS='$(GCC_DEBUG_FLAGS)' TZDIR='$(TZDIR)' ALL
 		for i in $(TDATA_TO_CHECK) public.dir/tzdata.zi \
 		    public.dir/vanguard.zi public.dir/main.zi \
 		    public.dir/rearguard.zi; \
@@ -1242,10 +1276,10 @@ zonenames:	tzdata.zi
 asctime.o:	private.h tzfile.h
 date.o:		private.h
 difftime.o:	private.h
-localtime.o:	private.h tzfile.h
+localtime.o:	private.h tzfile.h tzdir.h
 strftime.o:	private.h tzfile.h
 zdump.o:	version.h
-zic.o:		private.h tzfile.h version.h
+zic.o:		private.h tzfile.h tzdir.h version.h
 
 .PHONY: ALL INSTALL all
 .PHONY: check check_mild check_time_t_alternatives
