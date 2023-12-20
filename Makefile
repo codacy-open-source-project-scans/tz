@@ -3,6 +3,9 @@
 # 2009-05-17 by Arthur David Olson.
 # Request POSIX conformance; this must be the first non-comment line.
 .POSIX:
+# On older platforms you may need to scrounge for a POSIX-conforming 'make'.
+# For example, on Solaris 10 (2005), use /usr/sfw/bin/gmake or
+# /usr/xpg4/bin/make, not /usr/ccs/bin/make.
 
 # To affect how this Makefile works, you can run a shell script like this:
 #
@@ -577,7 +580,7 @@ YDATA=		$(PRIMARY_YDATA) etcetera
 NDATA=		factory
 TDATA_TO_CHECK=	$(YDATA) $(NDATA) backward
 TDATA=		$(YDATA) $(NDATA) $(BACKWARD)
-ZONETABLES=	zone1970.tab zone.tab
+ZONETABLES=	zone.tab zone1970.tab zonenow.tab
 TABDATA=	iso3166.tab $(TZDATA_TEXT) $(ZONETABLES)
 LEAP_DEPS=	leapseconds.awk leap-seconds.list
 TZDATA_ZI_DEPS=	ziguard.awk zishrink.awk version $(TDATA) \
@@ -616,7 +619,7 @@ VERSION_DEPS= \
 		tzfile.5 tzfile.h tzselect.8 tzselect.ksh \
 		workman.sh zdump.8 zdump.c zic.8 zic.c \
 		ziguard.awk zishrink.awk \
-		zone.tab zone1970.tab
+		zone.tab zone1970.tab zonenow.tab
 
 all:		tzselect zic zdump libtz.a $(TABDATA) \
 		  vanguard.zi main.zi rearguard.zi
@@ -822,7 +825,8 @@ tzselect:	tzselect.ksh version
 
 check: check_back check_mild
 check_mild:	check_character_set check_white_space check_links \
-		  check_name_lengths check_slashed_abbrs check_sorted \
+		  check_name_lengths check_now \
+		  check_slashed_abbrs check_sorted \
 		  check_tables check_web check_ziguard check_zishrink check_tzs
 
 check_character_set: $(ENCHILADA)
@@ -890,7 +894,29 @@ check_links:	checklinks.awk tzdata.zi
 		  -f checklinks.awk tzdata.zi
 		touch $@
 
-check_tables:	checktab.awk $(YDATA) backward $(ZONETABLES)
+# Check timestamps from now through 28 years from now, to make sure
+# that zonenow.tab contains all sequences of planned timestamps,
+# without any duplicate sequences.  In theory this might require
+# 2800 years but that would take a long time to check.
+CHECK_NOW_TIMESTAMP = `./date +%s`
+CHECK_NOW_FUTURE_YEARS = 28
+CHECK_NOW_FUTURE_SECS = $(CHECK_NOW_FUTURE_YEARS) '*' 366 '*' 24 '*' 60 '*' 60
+check_now:	checknow.awk date tzdata.zi zdump zic zone1970.tab zonenow.tab
+		rm -fr $@.dir
+		mkdir $@.dir
+		./zic -d $@.dir tzdata.zi
+		now=$(CHECK_NOW_TIMESTAMP) && \
+		  future=`expr $(CHECK_NOW_FUTURE_SECS) + $$now` && \
+		  ./zdump -i -t $$now,$$future \
+		     $$(find $$PWD/$@.dir/????*/ -type f) \
+		     >$@.dir/zdump.tab
+		$(AWK) \
+		  -v zdump_table=$@.dir/zdump.tab \
+		  -f checknow.awk zonenow.tab
+		rm -fr $@.dir
+		touch $@
+
+check_tables:	checktab.awk $(YDATA) backward zone.tab zone1970.tab
 		for tab in $(ZONETABLES); do \
 		  test "$$tab" = zone.tab && links='$(BACKWARD)' || links=''; \
 		  $(AWK) -f checktab.awk -v zone_table=$$tab $(YDATA) $$links \
