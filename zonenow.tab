@@ -16,6 +16,9 @@
 #     first by standard time UTC offset;
 #     then, if DST is used, by daylight saving UTC offset;
 #     then by time zone abbreviation.
+# 4.  Every timezone has a nonempty comments column, with wording
+#     distinguishing the timezone only from other timezones with the
+#     same UTC offset at some point during the year.
 #
 # The format of this table is experimental, and may change in future versions.
 #
@@ -120,7 +123,7 @@ XX	+1455-02331	Atlantic/Cape_Verde	Cape Verde
 #
 # -01/+00 (EU DST)
 XX	+3744-02540	Atlantic/Azores	Azores
-# -01/+00 (EU DST) until 2024-03-01; then -02/-01 (EU DST)
+# -01/+00 (EU DST) until 2024-03-31; then -02/-01 (EU DST)
 XX	+7029-02158	America/Scoresbysund	Ittoqqortoormiit
 #
 # +00 - GMT
@@ -132,7 +135,7 @@ XX	+513030-0000731	Europe/London	United Kingdom ("GMT/BST")
 # +00/+01 - WET/WEST (EU DST)
 XX	+3843-00908	Europe/Lisbon	western Europe ("WET/WEST")
 #
-# +00/+01 - Troll DST
+# +00/+02 - Troll DST
 XX	-720041+0023206	Antarctica/Troll	Troll Station in Antarctica
 #
 # +01 - CET

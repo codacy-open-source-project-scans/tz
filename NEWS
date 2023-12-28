@@ -1,10 +1,11 @@
 News for the tz database
 
-Unreleased, experimental changes
+Release 2023d - 2023-12-21 20:02:24 -0800
 
   Briefly:
     Ittoqqortoormiit, Greenland changes time zones on 2024-03-31.
     Vostok, Antarctica changed time zones on 2023-12-18.
+    Casey, Antarctica changed time zones five times since 2020.
     Code and data fixes for Palestine timestamps starting in 2072.
     A new data file zonenow.tab for timestamps starting now.
 
@@ -24,6 +25,10 @@ Unreleased, experimental changes
 
     Vostok, Antarctica changed to +05 on 2023-12-18.  It had been at
     +07 (not +06) for years.  (Thanks to Zakhary V. Akulov.)
+
+    Change data for Casey, Antarctica to agree with timeanddate.com,
+    by adding five time zone changes since 2020.  Casey is now at +08
+    instead of +11.
 
   Changes to past tm_isdst flags
 
@@ -45,6 +50,11 @@ Unreleased, experimental changes
     transition into a DST regime.  Previously, it incorrectly assumed
     DST was in effect before the transition too.  (Thanks to Alois
     Treindl for debugging help.)
+
+    localtime.c's timeoff no longer collides with OpenBSD 7.4.
+
+    The C code now uses _Generic only if __STDC_VERSION__ says the
+    compiler is C11 or later.
 
     tzselect now optionally reads zonenow.tab, to simplify when
     configuring only for timestamps dated from now on.
@@ -80,6 +90,9 @@ Unreleased, experimental changes
      * It no longer uses its own 'cc' in place of CC.
      * It now uses ARFLAGS, with default specified by POSIX.
      * It does not use LFLAGS incompatibly with POSIX.
+     * It uses the special .POSIX target.
+     * It quotes special characters more carefully.
+     * It no longer mishandles builds in an ISO 8859 locale.
     Due to the CC changes, TZDIR is now #defined in a file tzfile.h
     built by 'make', not in a $(CC) -D option.  Also, TZDEFAULT is
     now treated like TZDIR as they have similar roles.

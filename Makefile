@@ -588,7 +588,7 @@ TZDATA_ZI_DEPS=	ziguard.awk zishrink.awk version $(TDATA) \
 DSTDATA_ZI_DEPS= ziguard.awk $(TDATA) $(PACKRATDATA) $(PACKRATLIST)
 DATA=		$(TDATA_TO_CHECK) backzone iso3166.tab leap-seconds.list \
 			leapseconds $(ZONETABLES)
-AWK_SCRIPTS=	checklinks.awk checktab.awk leapseconds.awk \
+AWK_SCRIPTS=	checklinks.awk checknow.awk checktab.awk leapseconds.awk \
 			ziguard.awk zishrink.awk
 MISC=		$(AWK_SCRIPTS)
 TZS_YEAR=	2050
@@ -609,7 +609,7 @@ VERSION_DEPS= \
 		calendars CONTRIBUTING LICENSE Makefile NEWS README SECURITY \
 		africa antarctica asctime.c asia australasia \
 		backward backzone \
-		checklinks.awk checktab.awk \
+		checklinks.awk checknow.awk checktab.awk \
 		date.1 date.c difftime.c \
 		etcetera europe factory iso3166.tab \
 		leap-seconds.list leapseconds.awk localtime.c \
@@ -829,11 +829,16 @@ check_mild:	check_character_set check_white_space check_links \
 		  check_slashed_abbrs check_sorted \
 		  check_tables check_web check_ziguard check_zishrink check_tzs
 
+# True if UTF8_LOCALE does not work;
+# otherwise, false but with LC_ALL set to $(UTF8_LOCALE).
+UTF8_LOCALE_MISSING = \
+  { test ! '$(UTF8_LOCALE)' \
+    || ! printf 'A\304\200B\n' \
+         | LC_ALL='$(UTF8_LOCALE)' grep -q '^A.B$$' >/dev/null 2>&1 \
+    || { LC_ALL='$(UTF8_LOCALE)'; export LC_ALL; false; }; }
+
 check_character_set: $(ENCHILADA)
-	test ! '$(UTF8_LOCALE)' || \
-	! printf 'A\304\200B\n' | \
-	  LC_ALL='$(UTF8_LOCALE)' grep -q '^A.B$$' >/dev/null 2>&1 || { \
-		LC_ALL='$(UTF8_LOCALE)' && export LC_ALL && \
+	$(UTF8_LOCALE_MISSING) || { \
 		sharp='#' && \
 		! grep -Env $(SAFE_LINE) $(MANS) date.1 $(MANTXTS) \
 			$(MISC) $(SOURCES) $(WEB_PAGES) \
@@ -848,12 +853,12 @@ check_character_set: $(ENCHILADA)
 	touch $@
 
 check_white_space: $(ENCHILADA)
+	$(UTF8_LOCALE_MISSING) || { \
 		patfmt=' \t|[\f\r\v]' && pat=`printf "$$patfmt\\n"` && \
-		! grep -En "$$pat" \
-			$$(ls $(ENCHILADA) | grep -Fvx leap-seconds.list)
-		! grep -n '[$s]$$' \
-			$$(ls $(ENCHILADA) | grep -Fvx leap-seconds.list)
-		touch $@
+		! grep -En "$$pat|[$s]\$$" \
+			$$(ls $(ENCHILADA) | grep -Fvx leap-seconds.list); \
+	}
+	touch $@
 
 PRECEDES_FILE_NAME = ^(Zone|Link[$s]+[^$s]+)[$s]+
 FILE_NAME_COMPONENT_TOO_LONG = $(PRECEDES_FILE_NAME)[^$s]*[^/$s]{15}
