@@ -3,15 +3,43 @@ News for the tz database
 Unreleased, experimental changes
 
   Briefly:
+    zic no longer pretends to support indefinite-past DST.
     localtime no longer mishandles Ciudad Juárez in 2422.
 
+  Changes to past timestamps
+
+    From 1947 through 1949, Toronto's transitions occurred at 02:00
+    not 00:00.  (Thanks to Chris Walton.)
+
+    In 1911 Miquelon adopted standard time on June 15, not May 15.
+
   Changes to code
+
+    The FROM and TO columns of Rule lines can no longer be "minimum"
+    or an abbreviation of "minimum", because TZif files do not support
+    DST rules that extend into the indefinite past - although these
+    rules were supported when TZif files had only 32-bit data, this
+    stopped working when 64-bit TZif files were introduced in 1995.
+    This should not be a problem for realistic data, since DST was
+    first used in the 20th century.  As a transition aid, FROM columns
+    like "minimum" are now diagnosed and then treated as if they were
+    the year 1900; this should suffice for TZif files on old systems
+    with only 32-bit time_t, and it is more compatible with bugs in
+    2023c-and-earlier localtime.c.  (Problem reported by Yoshito
+    Umaoka.)
 
     localtime and related functions no longer mishandle some
     timestamps that occur about 400 years after a switch to a time
     zone with a DST schedule.  In 2023d data this problem was visible
-    only for some November 2422 timestamps in America/Ciudad_Juarez.
-    (Problem reported by Gilmore Davidson.)
+    for some timestamps in November 2422, November 2822, etc. in
+    America/Ciudad_Juarez.  (Problem reported by Gilmore Davidson.)
+
+  Changes to build procedure
+
+    The leap-seconds.list file is now copied from the IERS instead of
+    from its downstream counterpart at NIST, as the IERS version is
+    now in the public domain too and tends to be more up-to-date.
+    (Thanks to Martin Burnicki for liaisoning with the IERS.)
 
 
 Release 2023d - 2023-12-21 20:02:24 -0800
