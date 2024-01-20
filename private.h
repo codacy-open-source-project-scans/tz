@@ -756,7 +756,7 @@ struct tm *offtime(time_t const *, long);
 time_t timelocal(struct tm *);
 # endif
 # if TZ_TIME_T || !defined timeoff
-time_t timeoff(struct tm *, long);
+#  define EXTERN_TIMEOFF
 # endif
 # if TZ_TIME_T || !defined time2posix
 time_t time2posix(time_t);
@@ -768,7 +768,8 @@ time_t posix2time(time_t);
 
 /* Infer TM_ZONE on systems where this information is known, but suppress
    guessing if NO_TM_ZONE is defined.  Similarly for TM_GMTOFF.  */
-#if (defined __GLIBC__ \
+#if (200809 < _POSIX_VERSION \
+     || defined __GLIBC__ \
      || defined __tm_zone /* musl */ \
      || defined __FreeBSD__ || defined __NetBSD__ || defined __OpenBSD__ \
      || (defined __APPLE__ && defined __MACH__))
@@ -896,6 +897,19 @@ static_assert(! TYPE_SIGNED(time_t) || ! SIGNED_PADDING_CHECK_NEEDED
    mktime likely infer a better value.  */
 #ifndef UNINIT_TRAP
 # define UNINIT_TRAP 0
+#endif
+
+/* localtime.c sometimes needs access to timeoff if it is not already public.
+   tz_private_timeoff should be used only by localtime.c.  */
+#if (!defined EXTERN_TIMEOFF \
+     && defined TM_GMTOFF && (200809 < _POSIX_VERSION || ! UNINIT_TRAP))
+# ifndef timeoff
+#  define timeoff tz_private_timeoff
+# endif
+# define EXTERN_TIMEOFF
+#endif
+#ifdef EXTERN_TIMEOFF
+time_t timeoff(struct tm *, long);
 #endif
 
 #ifdef DEBUG

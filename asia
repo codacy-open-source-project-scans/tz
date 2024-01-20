@@ -2457,17 +2457,34 @@ Zone	Asia/Amman	2:23:44 -	LMT	1931
 # effective December 21st, 2018....
 # http://adilet.zan.kz/rus/docs/P1800000817 (russian language).
 
+# From Zhanbolat Raimbekov (2024-01-19):
+# Kazakhstan (all parts) switching to UTC+5 on March 1, 2024
+# https://www.gov.kz/memleket/entities/mti/press/news/details/688998?lang=ru
+# [in Russian]
+# (2024-01-20): https://primeminister.kz/ru/decisions/19012024-20
+#
+# From Alexander Krivenyshev (2024-01-19):
+# According to a different news and the official web site for the Ministry of
+# Trade and Integration of the Republic of Kazakhstan:
+# https://en.inform.kz/news/kazakhstan-to-switch-to-single-hour-zone-mar-1-54ad0b/
+
 # Zone	NAME		STDOFF	RULES	FORMAT	[UNTIL]
 #
 # Almaty (formerly Alma-Ata), representing most locations in Kazakhstan
-# This includes KZ-AKM, KZ-ALA, KZ-ALM, KZ-AST, KZ-BAY, KZ-VOS, KZ-ZHA,
-# KZ-KAR, KZ-SEV, KZ-PAV, and KZ-YUZ.
+# This includes Aqmola/Akmola (ISO 3166-2 code KZ-AKM), Almaty city (KZ-ALA),
+# Almaty (KZ-ALM), Astana city (KZ-AST), Baikonur city (KZ-BAY),
+# East Kazkhstan (KZ-VOS), Jambyl/Zhambyl (KZ-ZHA), Karaganda (KZ-KAR),
+# North Kazakhstan (KZ-SEV), Pavlodar (KZ-PAV), and Turkistan (KZ-YUZ).
+# It also includes the following for which ISO 3166-2 codes are
+# not yet assigned, or are unknown because ISO does not publish codes freely:
+# Abai/Abay, Jetisu/Zhetysu, Shyumkent city, and Ulytau.
 Zone	Asia/Almaty	5:07:48 -	LMT	1924 May  2 # or Alma-Ata
 			5:00	-	+05	1930 Jun 21
 			6:00 RussiaAsia +06/+07	1991 Mar 31  2:00s
 			5:00 RussiaAsia	+05/+06	1992 Jan 19  2:00s
 			6:00 RussiaAsia	+06/+07	2004 Oct 31  2:00s
-			6:00	-	+06
+			6:00	-	+06	2024 Mar  1  0:00
+			5:00	-	+05
 # Qyzylorda (aka Kyzylorda, Kizilorda, Kzyl-Orda, etc.) (KZ-KZY)
 Zone	Asia/Qyzylorda	4:21:52 -	LMT	1924 May  2
 			4:00	-	+04	1930 Jun 21
@@ -2481,7 +2498,6 @@ Zone	Asia/Qyzylorda	4:21:52 -	LMT	1924 May  2
 			5:00 RussiaAsia	+05/+06	2004 Oct 31  2:00s
 			6:00	-	+06	2018 Dec 21  0:00
 			5:00	-	+05
-#
 # Qostanay (aka Kostanay, Kustanay) (KZ-KUS)
 # The 1991/2 rules are unclear partly because of the 1997 Turgai
 # reorganization.
@@ -2493,8 +2509,8 @@ Zone	Asia/Qostanay	4:14:28 -	LMT	1924 May  2
 			5:00 RussiaAsia	+05/+06	1991 Mar 31  2:00s
 			4:00 RussiaAsia	+04/+05	1992 Jan 19  2:00s
 			5:00 RussiaAsia	+05/+06	2004 Oct 31  2:00s
-			6:00	-	+06
-
+			6:00	-	+06	2024 Mar  1  0:00
+			5:00	-	+05
 # Aqtöbe (aka Aktobe, formerly Aktyubinsk) (KZ-AKT)
 Zone	Asia/Aqtobe	3:48:40	-	LMT	1924 May  2
 			4:00	-	+04	1930 Jun 21
@@ -4041,7 +4057,8 @@ Zone	Asia/Tashkent	4:37:11 -	LMT	1924 May  2
 # The English-language name of Vietnam's most populous city is "Ho Chi Minh
 # City"; use Ho_Chi_Minh below to avoid a name of more than 14 characters.
 
-# From Paul Eggert (2022-07-27) after a 2014 heads-up from Trần Ngọc Quân:
+# From Paul Eggert (2024-01-14) after a 2014 heads-up from Trần Ngọc Quân
+# and a 2024-01-14 heads-up from Đoàn Trần Công Danh:
 # Trần Tiến Bình's authoritative book "Lịch Việt Nam: thế kỷ XX-XXI (1901-2100)"
 # (Nhà xuất bản Văn Hoá - Thông Tin, Hanoi, 2005), pp 49-50,
 # is quoted verbatim in:
@@ -4071,14 +4088,35 @@ Zone	Asia/Tashkent	4:37:11 -	LMT	1924 May  2
 #
 # Trần cites the following sources; it's unclear which supplied the info above.
 #
-# Hoàng Xuân Hãn: "Lịch và lịch Việt Nam". Tập san Khoa học Xã hội,
-# No. 9, Paris, February 1982.
+#   Hoàng Xuân Hãn: "Lịch và lịch Việt Nam". Tập san Khoa học Xã hội,
+#   No. 9, Paris, February 1982.
 #
-# Lê Thành Lân: "Lịch và niên biểu lịch sử hai mươi thế kỷ (0001-2010)",
-# NXB Thống kê, Hanoi, 2000.
+#   Lê Thành Lân: "Lịch và niên biểu lịch sử hai mươi thế kỷ (0001-2010)",
+#   NXB Thống kê, Hanoi, 2000.
 #
-# Lê Thành Lân: "Lịch hai thế kỷ (1802-2010) và các lịch vĩnh cửu",
-# NXB Thuận Hoá, Huế, 1995.
+#   Lê Thành Lân: "Lịch hai thế kỷ (1802-2010) và các lịch vĩnh cửu",
+#   NXB Thuận Hoá, Huế, 1995.
+#
+# Here is the decision for the September 1945 transition:
+# Võ Nguyên Giáp, Việt Nam Dân Quốc Công Báo, No. 1 (1945-09-29), page 13
+# http://baochi.nlv.gov.vn/baochi/cgi-bin/baochi?a=d&d=JwvzO19450929.2.5&dliv=none
+# It says that on 1945-09-01 at 24:00, Vietnam moved back two hours, to +07.
+# It also mentions a 1945-03-29 decree (by a Japanese Goveror-General)
+# to set the time zone to +09, but does not say whether that decree
+# merely legalized an earlier change to +09.
+#
+# July 1955 transition:
+# Ngô Đình Diệm, Công Báo Việt Nam, No. 92 (1955-07-02), page 1780-1781
+# Ordinance (Dụ) No. 46 (1955-06-25)
+# http://ddsnext.crl.edu/titles/32341#?c=0&m=29&s=0&cv=4&r=0&xywh=-89%2C342%2C1724%2C1216
+# It says that on 1955-07-01 at 01:00, South Vietnam moved back 1 hour (to +07).
+#
+# December 1959 transition:
+# Ngô Đình Diệm, Công Báo Việt Nam Cộng Hòa, 1960 part 1 (1960-01-02), page 62
+# Decree (Sắc lệnh) No. 362-TTP (1959-12-30)
+# http://ddsnext.crl.edu/titles/32341#?c=0&m=138&s=0&cv=793&r=0&xywh=-54%2C1504%2C1705%2C1202
+# It says that on 1959-12-31 at 23:00, South Vietnam moved forward 1 hour (to +08).
+
 
 # Zone	NAME		STDOFF	RULES	FORMAT	[UNTIL]
 		#STDOFF	7:06:30.13
@@ -4086,9 +4124,9 @@ Zone Asia/Ho_Chi_Minh	7:06:30 -	LMT	1906 Jul  1
 			7:06:30	-	PLMT	1911 May  1 # Phù Liễn MT
 			7:00	-	+07	1942 Dec 31 23:00
 			8:00	-	+08	1945 Mar 14 23:00
-			9:00	-	+09	1945 Sep  2
+			9:00	-	+09	1945 Sep  1 24:00
 			7:00	-	+07	1947 Apr  1
-			8:00	-	+08	1955 Jul  1
+			8:00	-	+08	1955 Jul  1 01:00
 			7:00	-	+07	1959 Dec 31 23:00
 			8:00	-	+08	1975 Jun 13
 			7:00	-	+07
