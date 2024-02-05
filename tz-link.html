@@ -114,7 +114,7 @@ Indiana, which switched from central to eastern time in 1991
 and switched back in 2006.
 To use the database on an extended <a
 href="https://en.wikipedia.org/wiki/POSIX"><abbr
-title="Portable Operating System Interface">POSIX</abbr></a>
+title="Portable Operating System Interface">POSIX</abbr>.1-2017</a>
 implementation set the <code><abbr>TZ</abbr></code>
 environment variable to the location's full name,
 e.g., <code><abbr>TZ</abbr>="America/New_York"</code>.</p>
@@ -172,7 +172,7 @@ Since version 2022a, each release has been distributed in
 ustar interchange format</a>, compressed as described above;
 older releases use a nearly compatible format.
 Since version 2016h, each release has contained a text file named
-"<samp>version</samp>" whose first (and currently only) line is the version.
+"<code>version</code>" whose first (and currently only) line is the version.
 Older releases are <a href="https://ftp.iana.org/tz/releases/">archived</a>,
 and are also available in an
 <a href="ftp://ftp.iana.org/tz/releases/"><abbr
@@ -508,12 +508,12 @@ It is freely available under the Apache License.</li>
 <li>Many modern
 <a href="https://en.wikipedia.org/wiki/JavaScript">JavaScript</a>
 runtimes support <code><abbr>tz</abbr></code> natively via the
-<samp>timeZone</samp> option of <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat"><samp>Intl.DateTimeFormat</samp></a>.
+<code>timeZone</code> option of <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat"><code>Intl.DateTimeFormat</code></a>.
 This can be used as-is or with most of the following libraries,
-many of which also support runtimes lacking the <samp>timeZone</samp> option.
+many of which also support runtimes lacking the <code>timeZone</code> option.
 <ul>
 <li>The <a
-href="https://github.com/formatjs/date-time-format-timezone"><samp>Intl.DateTimeFormat</samp>
+href="https://github.com/formatjs/date-time-format-timezone"><code>Intl.DateTimeFormat</code>
 timezone polyfill</a>
 is freely available under a <abbr>BSD</abbr>-style license.</li>
 <li>The <a href="https://date-fns.org/">date-fns</a>
@@ -526,7 +526,7 @@ the <a href="https://momentjs.com/docs/">now-legacy Moment.js</a> date
 manipulation library.
 It is freely available under the <abbr>MIT</abbr> license.</li>
 <li><a href="https://moment.github.io/luxon/">Luxon</a> improves
-timezone support for the <samp>Intl</samp> API.
+timezone support for the <code>Intl</code> API.
 It is freely available under the <abbr>MIT</abbr> license.</li>
 <li><a href="https://momentjs.com/timezone/">Moment Timezone</a> is a
 Moment.js plugin.
@@ -547,11 +547,11 @@ convert timestamps, view transition histories, and download code and data.
 It is freely available under the <abbr>MIT</abbr> license.</li>
 </ul>
 The proposed <a
-href="https://github.com/tc39/proposal-temporal"><samp>Temporal</samp>
+href="https://github.com/tc39/proposal-temporal"><code>Temporal</code>
 objects</a> let programs access an abstract view of
 <code><abbr>tzdb</abbr></code> data, and are designed to replace <a
 href="https://codeofmatt.com/javascript-date-type-is-horribly-broken/">JavaScript's
-problematic <samp>Date</samp> objects</a> when working with dates and times.
+problematic <code>Date</code> objects</a> when working with dates and times.
 <li><a href="https://github.com/JuliaTime/">JuliaTime</a> contains a
 compiler from <code><abbr>tz</abbr></code> source into
 <a href="https://julialang.org/">Julia</a>. It is freely available
@@ -617,6 +617,16 @@ the Apache License.</li>
 library that translates between <abbr>UT</abbr> and civil time and
 can read <abbr>TZif</abbr> files. It is freely available under the Apache
 License.</li>
+<li>The
+<a href="https://github.com/nayarsystems/posix_tz_db"><code>posix_tz_db</code>
+package</a> contains Python code
+to generate <abbr>CSV</abbr> and <abbr>JSON</abbr> tables that map
+<code><abbr>tz</abbr></code> settings to POSIX.1-2017-like approximations.
+For example, it maps <code>"Africa/Cairo"</code>
+to <code>"EET-2EEST,M4.5.5/0,M10.5.4/24"</code>,
+an approximation valid for Cairo timestamps from 2023 on.
+This can help porting to platforms that support only POSIX.1-2017.
+The package is freely available under the MIT license.</li>
 <li><a href="https://github.com/derickr/timelib">Timelib</a> is a C
 library that reads <abbr>TZif</abbr> files and converts
 timestamps from one time zone or format to another.
@@ -777,32 +787,9 @@ boundaries of <code><abbr>tzdb</abbr></code> timezones.
 Its code is freely available under the <abbr>MIT</abbr> license, and
 its data entries are freely available under the
 <a href="https://opendatacommons.org/licenses/odbl/">Open Data Commons
-Open Database License</a>. The maps' borders appear to be quite accurate.</li>
-<li>Programmatic interfaces that map geographical coordinates via tz_world to
-<code><abbr>tzdb</abbr></code> timezones include:
-<ul>
-<li><a href="https://github.com/mj1856/GeoTimeZone">GeoTimeZone</a> is
-written in <a
-href="https://en.wikipedia.org/wiki/C_Sharp_(programming_language)">C#</a>
-and is freely available under the <abbr>MIT</abbr> license.</li>
-<li>The <a href="https://github.com/bradfitz/latlong">latlong package</a>
-is written in Go and is freely available under the Apache License.</li>
-<li><a href="https://github.com/drtimcooper/LatLongToTimezone">LatLongToTimezone</a>,
-in both Java and
-<a href="https://en.wikipedia.org/wiki/Swift_(programming_language)">Swift</a>
-form, is freely available under the MIT license.</li>
-<li>For Node.js,
-the <a href="https://www.npmjs.com/package/geo-tz">geo-tz module</a>
-is freely available under the MIT license, and
-the <a href="https://www.npmjs.com/package/tz-lookup">tz-lookup module</a>
-is in the public domain.</li>
-<li>The <a
-href="https://github.com/MrMinimal64/timezonefinder">timezonefinder</a>
-library for Python is freely available under the MIT license.
-<li>The <a
-href="https://github.com/gunyarakun/timezone_finder">timezone_finder</a>
-library for Ruby is freely available under the MIT license.</li>
-</ul></li>
+Open Database License</a>. The borders appear to be quite accurate.
+Its main web page lists more than twenty libraries
+for looking up a timezone name from a GPS coordinate.</li>
 <li>Free access via a network API, if you register a key, is provided by
 the <a
 href="https://www.geonames.org/export/web-services.html#timezone">GeoNames
@@ -823,7 +810,7 @@ Divisions of Countries ("Statoids")</a> lists
 political subdivision data related to time zones.</li>
 <li><a href="https://manifold.net/info/freestuff.shtml">Manifold Software
 &ndash; GIS and Database Tools</a> includes a Manifold-format map of
-world time zone boundaries distributed under the
+world time zone boundaries circa 2007, distributed under the
 <abbr>GPL</abbr>.</li>
 <li>A ship within the <a
 href="https://en.wikipedia.org/wiki/Territorial_waters">territorial
@@ -910,9 +897,10 @@ summarizes and cites historical <abbr>DST</abbr> regulations.</dd>
 href="https://www.ptb.de/cms/en/fachabteilungen/abt4/fb-44/ag-441/realisation-of-legal-time-in-germany.html">Realisation
 of Legal Time in Germany</a>.</dd>
 <dt>Israel</dt>
-<dd>The Interior Ministry periodically issues <a
-href="ftp://ftp.cs.huji.ac.il/pub/tz/announcements"
-hreflang="he">announcements (in Hebrew)</a>.</dd>
+<dd><a
+href="https://tz.cs.huji.ac.il/">Israel Timezone Files</a>
+lists official time-change announcements and laws since 1940,
+almost all in Hebrew.</dd>
 <dt>Malaysia</dt>
 <dd>See Singapore <a href="#Singapore">below</a>.</dd>
 <dt>Mexico</dt>
@@ -1123,9 +1111,12 @@ might be redefined
 without Leap Seconds</a> gives pointers on this
 contentious issue.
 The General Conference on Weights and Measures
-<a href="https://www.bipm.org/en/cgpm-2022/resolution-4">voted in 2022</a>
-to discontinue the use of leap seconds by 2035, replacing them with an
-as-yet-undetermined scheme some time after the year 2135.
+<a href="https://www.bipm.org/en/cgpm-2022/resolution-4">decided in 2022</a>
+to discontinue the use of leap seconds by 2035, and requested that no
+discontinuous adjustments be made to UTC for at least a century.
+The World Radiocommunication Conference <a
+href="https://www.itu.int/dms_pub/itu-r/opb/act/R-ACT-WRC.15-2023-PDF-E.pdf">resolved
+in 2023</a> to cooperate with this process.
 </li>
 </ul>
 </section>
