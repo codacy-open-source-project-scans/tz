@@ -10,10 +10,10 @@
 # To affect how this Makefile works, you can run a shell script like this:
 #
 #	#!/bin/sh
-#	make CC='gcc -std=gnu11' "$@"
+#	make CC='gcc -std=gnu23' "$@"
 #
-# This example script is appropriate for a pre-2017 GNU/Linux system
-# where a non-default setting is needed to support this package's use of C99.
+# This example script is appropriate for a circa 2024 GNU/Linux system
+# where a non-default setting enables this package's optional use of C23.
 #
 # Alternatively, you can simply edit this Makefile to tailor the following
 # macro definitions.
@@ -53,7 +53,7 @@ DATAFORM=		main
 
 LOCALTIME=	Factory
 
-# The POSIXRULES macro controls interpretation of POSIX-2017.1-like TZ
+# The POSIXRULES macro controls interpretation of POSIX-like TZ
 # settings like TZ='EET-2EEST' that lack DST transition rules.
 # If POSIXRULES is '-', no template is installed; this is the default.
 # Any other value for POSIXRULES is obsolete and should not be relied on, as:
@@ -219,6 +219,7 @@ LDLIBS=
 #	than what POSIX specifies, assuming local time is UT.
 #	For example, N is 252460800 on AmigaOS.
 #  -DHAVE_DECL_ASCTIME_R=0 if <time.h> does not declare asctime_r
+#	on POSIX platforms predating POSIX.1-2024
 #  -DHAVE_DECL_ENVIRON if <unistd.h> declares 'environ'
 #  -DHAVE_DECL_TIMEGM=0 if <time.h> does not declare timegm
 #  -DHAVE_DIRECT_H if mkdir needs <direct.h> (MS-Windows)
@@ -229,7 +230,7 @@ LDLIBS=
 #	where LDLIBS also needs to contain -lintl on some hosts;
 #	-DHAVE_GETTEXT=0 to avoid using gettext
 #  -DHAVE_INCOMPATIBLE_CTIME_R if your system's time.h declares
-#	ctime_r and asctime_r incompatibly with the POSIX standard
+#	ctime_r and asctime_r incompatibly with POSIX.1-2017
 #	(Solaris when _POSIX_PTHREAD_SEMANTICS is not defined).
 #  -DHAVE_INTTYPES_H=0 if <inttypes.h> does not work*+
 #  -DHAVE_LINK=0 if your system lacks a link function
@@ -263,6 +264,8 @@ LDLIBS=
 #  -Dssize_t=long on hosts like MS-Windows that lack ssize_t
 #  -DSUPPORT_C89 if the tzcode library should support C89 callers+
 #	However, this might trigger latent bugs in C99-or-later callers.
+#  -DSUPPORT_POSIX2008 if the library should support older POSIX callers+
+#	However, this might cause problems in POSIX.1-2024-or-later callers.
 #  -DSUPPRESS_TZDIR to not prepend TZDIR to file names; this has
 #	security implications and is not recommended for general use
 #  -DTHREAD_SAFE to make localtime.c thread-safe, as POSIX requires;
@@ -302,23 +305,25 @@ LDLIBS=
 #
 # * Options marked "*" can be omitted if your compiler is C23 compatible.
 # * Options marked "+" are obsolescent and are planned to be removed
-#   once the code assumes C99 or later, say in the year 2029.
+#   once the code assumes C99 or later (say in the year 2029)
+#   and POSIX.1-2024 or later (say in the year 2034).
 #
 # Select instrumentation via "make GCC_INSTRUMENT='whatever'".
 GCC_INSTRUMENT = \
   -fsanitize=undefined -fsanitize-address-use-after-scope \
   -fsanitize-undefined-trap-on-error -fstack-protector
 # Omit -fanalyzer from GCC_DEBUG_FLAGS, as it makes GCC too slow.
-GCC_DEBUG_FLAGS = -DGCC_LINT -g3 -O3 -fno-common \
+GCC_DEBUG_FLAGS = -DGCC_LINT -g3 -O3 \
   $(GCC_INSTRUMENT) \
   -Wall -Wextra \
   -Walloc-size-larger-than=100000 -Warray-bounds=2 \
   -Wbad-function-cast -Wbidi-chars=any,ucn -Wcast-align=strict -Wdate-time \
   -Wdeclaration-after-statement -Wdouble-promotion \
-  -Wduplicated-branches -Wduplicated-cond \
+  -Wduplicated-branches -Wduplicated-cond -Wflex-array-member-not-at-end \
   -Wformat=2 -Wformat-overflow=2 -Wformat-signedness -Wformat-truncation \
   -Wimplicit-fallthrough=5 -Winit-self -Wlogical-op \
-  -Wmissing-declarations -Wmissing-prototypes -Wnested-externs \
+  -Wmissing-declarations -Wmissing-prototypes \
+  -Wmissing-variable-declarations -Wnested-externs \
   -Wnull-dereference \
   -Wold-style-definition -Woverlength-strings -Wpointer-arith \
   -Wshadow -Wshift-overflow=2 -Wstrict-overflow \
@@ -327,10 +332,9 @@ GCC_DEBUG_FLAGS = -DGCC_LINT -g3 -O3 -fno-common \
   -Wsuggest-attribute=const -Wsuggest-attribute=format \
   -Wsuggest-attribute=malloc \
   -Wsuggest-attribute=noreturn -Wsuggest-attribute=pure \
-  -Wtrampolines -Wundef -Wuninitialized -Wunused-macros -Wuse-after-free=3 \
+  -Wtrampolines -Wundef -Wunused-macros -Wuse-after-free=3 \
   -Wvariadic-macros -Wvla -Wwrite-strings \
-  -Wno-address -Wno-format-nonliteral -Wno-sign-compare \
-  -Wno-type-limits
+  -Wno-format-nonliteral -Wno-sign-compare
 #
 # If your system has a "GMT offset" field in its "struct tm"s
 # (or if you decide to add such a field in your system's "time.h" file),
@@ -480,6 +484,7 @@ KSHELL=		/bin/bash
 
 # Name of curl <https://curl.haxx.se/>, used for HTML validation
 # and to fetch leap-seconds.list from upstream.
+# Set CURL=: to disable use of the Internet.
 CURL=		curl
 
 # Name of GNU Privacy Guard <https://gnupg.org/>, used to sign distributions.
@@ -561,8 +566,8 @@ RANLIB=		:
 
 
 TZCOBJS=	zic.o
-TZDOBJS=	zdump.o localtime.o asctime.o strftime.o
-DATEOBJS=	date.o localtime.o strftime.o asctime.o
+TZDOBJS=	zdump.o localtime.o strftime.o
+DATEOBJS=	date.o localtime.o strftime.o
 LIBSRCS=	localtime.c asctime.c difftime.c strftime.c
 LIBOBJS=	localtime.o asctime.o difftime.o strftime.o
 HEADERS=	tzfile.h private.h
@@ -918,7 +923,7 @@ CHECK_CC_LIST = { n = split($$1,a,/,/); for (i=2; i<=n; i++) print a[1], a[i]; }
 check_sorted: backward backzone
 		$(AWK) '/^Link/ {printf "%.5d %s\n", g, $$3} !/./ {g++}' \
 		  backward | LC_ALL=C sort -cu
-		$(AWK) '/^Zone/ {print $$2}' backzone | LC_ALL=C sort -cu
+		$(AWK) '/^Zone.*\// {print $$2}' backzone | LC_ALL=C sort -cu
 		touch $@
 
 check_back:	checklinks.awk $(TDATA_TO_CHECK)
@@ -937,7 +942,7 @@ check_links:	checklinks.awk tzdata.zi
 # Check timestamps from now through 28 years from now, to make sure
 # that zonenow.tab contains all sequences of planned timestamps,
 # without any duplicate sequences.  In theory this might require
-# 2800 years but that would take a long time to check.
+# 2800+ years but that would take a long time to check.
 CHECK_NOW_TIMESTAMP = `./date +%s`
 CHECK_NOW_FUTURE_YEARS = 28
 CHECK_NOW_FUTURE_SECS = $(CHECK_NOW_FUTURE_YEARS) '*' 366 '*' 24 '*' 60 '*' 60
@@ -949,10 +954,20 @@ check_now:	checknow.awk date tzdata.zi zdump zic zone1970.tab zonenow.tab
 		  future=`expr $(CHECK_NOW_FUTURE_SECS) + $$now` && \
 		  ./zdump -i -t $$now,$$future \
 		     $$(find $$PWD/$@.dir/????*/ -type f) \
-		     >$@.dir/zdump.tab
+		     >$@.dir/zdump-now.tab && \
+		  ./zdump -i -t 0,$$future \
+		     $$(find $$PWD/$@.dir -name Etc -prune \
+			  -o -type f ! -name '*.tab' -print) \
+		     >$@.dir/zdump-1970.tab
 		$(AWK) \
-		  -v zdump_table=$@.dir/zdump.tab \
+		  -v zdump_table=$@.dir/zdump-now.tab \
 		  -f checknow.awk zonenow.tab
+		$(AWK) \
+		  'BEGIN {print "-\t-\tUTC"} /^Zone/ {print "-\t-\t" $$2}' \
+		  $(PRIMARY_YDATA) backward factory | \
+		 $(AWK) \
+		   -v zdump_table=$@.dir/zdump-1970.tab \
+		   -f checknow.awk
 		rm -fr $@.dir
 		touch $@
 
@@ -978,8 +993,9 @@ check_tz-art.html: tz-art.html
 check_tz-how-to.html: tz-how-to.html
 check_tz-link.html: tz-link.html
 check_theory.html check_tz-art.html check_tz-how-to.html check_tz-link.html:
-		$(CURL) -sS --url https://validator.w3.org/nu/ -F out=gnu \
-		    -F file=@$$(expr $@ : 'check_\(.*\)') -o $@.out && \
+		{ ! ($(CURL) --version) >/dev/null 2>&1 || \
+		    $(CURL) -sS --url https://validator.w3.org/nu/ -F out=gnu \
+		          -F file=@$$(expr $@ : 'check_\(.*\)'); } >$@.out && \
 		  test ! -s $@.out || { cat $@.out; exit 1; }
 		mv $@.out $@
 

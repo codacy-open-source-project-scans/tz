@@ -750,7 +750,7 @@ is_digit(char c)
 ** Return a pointer to that character.
 */
 
-ATTRIBUTE_REPRODUCIBLE static const char *
+ATTRIBUTE_PURE_114833 static const char *
 getzname(register const char *strp)
 {
 	register char	c;
@@ -771,7 +771,7 @@ getzname(register const char *strp)
 ** We don't do any checking here; checking is done later in common-case code.
 */
 
-ATTRIBUTE_REPRODUCIBLE static const char *
+ATTRIBUTE_PURE_114833 static const char *
 getqzname(register const char *strp, const int delim)
 {
 	register int	c;
@@ -1408,8 +1408,8 @@ tzfree(timezone_t sp)
 }
 
 /*
-** NetBSD 6.1.4 has ctime_rz, but omit it because POSIX says ctime and
-** ctime_r are obsolescent and have potential security problems that
+** NetBSD 6.1.4 has ctime_rz, but omit it because C23 deprecates ctime and
+** POSIX.1-2024 removes ctime_r.  Both have potential security problems that
 ** ctime_rz would share.  Callers can instead use localtime_rz + strftime.
 **
 ** NetBSD 6.1.4 has tzgetname, but omit it because it doesn't work
@@ -2228,7 +2228,7 @@ mktime(struct tm *tmp)
 }
 
 #if STD_INSPIRED
-/* This function is obsolescent and may disapper in future releases.
+/* This function is obsolescent and may disappear in future releases.
    Callers can instead use mktime.  */
 time_t
 timelocal(struct tm *tmp)
@@ -2246,7 +2246,7 @@ timelocal(struct tm *tmp)
 # define EXTERN_TIMEOFF static
 #endif
 
-/* This function is obsolescent and may disapper in future releases.
+/* This function is obsolescent and may disappear in future releases.
    Callers can instead use mktime_z with a fixed-offset zone.  */
 EXTERN_TIMEOFF time_t
 timeoff(struct tm *tmp, long offset)
