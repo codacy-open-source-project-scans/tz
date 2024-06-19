@@ -8,6 +8,7 @@ Unreleased, experimental changes
     The code now conforms to RFC 8536 for early timestamps.
     Support POSIX.1-2024, which removes asctime_r and ctime_r.
     Assume POSIX.2-1992 or later for shell scripts.
+    SUPPORT_C89 now defaults to 1.
     Improve historical data for Portugal and possessions.
 
   Changes to data
@@ -60,9 +61,13 @@ Unreleased, experimental changes
     can overrun user buffers.  If you still need them, add
     -DSUPPORT_POSIX2008 to CFLAGS.
 
-    tzselect now assumes POSIX.2-1992 or later, as practical porting
-    targets now all support this.  Also, tzselect uses some features
-    from POSIX.1-2024 if available.
+    The SUPPORT_C89 option now defaults to 1 instead of 0, fixing a
+    POSIX-conformance bug introduced in 2023a.
+
+    tzselect now supports POSIX.1-2024 proleptic TZ strings.  Also, it
+    assumes POSIX.2-1992 or later, as practical porting targets now
+    all support that, and it uses some features from POSIX.1-2024 if
+    available.
 
   Changes to build procedure
 
@@ -71,6 +76,10 @@ Unreleased, experimental changes
     The build procedure now assumes POSIX.2-1992 or later, to simplify
     maintenance.  To build on Solaris 10, the only extant system still
     defaulting to pre-POSIX, prepend /usr/xpg4/bin to PATH.
+
+  Changes to documentation
+
+    The documentation now reflects POSIX.1-2024.
 
 
 Release 2024a - 2024-02-01 09:28:56 -0800

@@ -106,7 +106,7 @@ static char const UNSPEC[] = "-00";
    for ttunspecified to work without crashing.  */
 enum { CHARS_EXTRA = max(sizeof UNSPEC, 2) - 1 };
 
-/* Limit to time zone abbreviation length in POSIX.1-2017-style TZ strings.
+/* Limit to time zone abbreviation length in proleptic TZ strings.
    This is distinct from TZ_MAX_CHARS, which limits TZif file contents.  */
 #ifndef TZNAME_MAXIMUM
 # define TZNAME_MAXIMUM 255
@@ -182,8 +182,9 @@ static int		lcl_is_set;
 **	objects: a broken-down time structure and an array of char.
 ** Thanks to Paul Eggert for noting this.
 **
-** This requirement was removed in C99, so support it only if requested,
-** as support is more likely to lead to bugs in badly written programs.
+** Although this requirement was removed in C99 it is still present in POSIX.
+** Follow the requirement if SUPPORT_C89, even though this is more likely to
+** trigger latent bugs in programs.
 */
 
 #if SUPPORT_C89
@@ -1023,7 +1024,7 @@ transtime(const int year, register const struct rule *const rulep,
 }
 
 /*
-** Given a POSIX.1-2017-style TZ string, fill in the rule tables as
+** Given a POSIX.1 proleptic TZ string, fill in the rule tables as
 ** appropriate.
 */
 
@@ -1258,7 +1259,7 @@ tzparse(const char *name, struct state *sp, struct state const *basep)
 					/*
 					** Transitions from DST to DDST
 					** will effectively disappear since
-					** POSIX.1-2017 provides for only one
+					** proleptic TZ strings have only one
 					** DST offset.
 					*/
 					if (isdst && !sp->ttis[j].tt_ttisstd) {
@@ -1427,8 +1428,7 @@ tzfree(timezone_t sp)
 **
 ** If successful and SETNAME is nonzero,
 ** set the applicable parts of tzname, timezone and altzone;
-** however, it's OK to omit this step
-** if the timezone is compatible with POSIX.1-2017
+** however, it's OK to omit this step for proleptic TZ strings
 ** since in that case tzset should have already done this step correctly.
 ** SETNAME's type is int_fast32_t for compatibility with gmtsub,
 ** but it is actually a boolean and its value should be 0 or 1.

@@ -19,19 +19,22 @@
 
 /* PORT_TO_C89 means the code should work even if the underlying
    compiler and library support only C89 plus C99's 'long long'
-   and perhaps a few other extensions to C89.  SUPPORT_C89 means the
-   tzcode library should support C89 callers in addition to the usual
-   support for C99-and-later callers; however, C89 support can trigger
-   latent bugs in C99-and-later callers.  These macros are obsolescent,
-   and the plan is to remove them along with any code needed only when
-   they are nonzero.  A good time to do that might be in the year 2029
+   and perhaps a few other extensions to C89.
+
+   This macro is obsolescent, and the plan is to remove it along with
+   associated code.  A good time to do that might be in the year 2029
    because RHEL 7 (whose GCC defaults to C89) extended life cycle
    support (ELS) is scheduled to end on 2028-06-30.  */
 #ifndef PORT_TO_C89
 # define PORT_TO_C89 0
 #endif
+
+/* SUPPORT_C89 means the tzcode library should support C89 callers
+   in addition to the usual support for C99-and-later callers.
+   This defaults to 1 as POSIX requires, even though that can trigger
+   latent bugs in callers.  */
 #ifndef SUPPORT_C89
-# define SUPPORT_C89 0
+# define SUPPORT_C89 1
 #endif
 
 #ifndef __STDC_VERSION__
@@ -993,8 +996,9 @@ enum {
 
 /* How many years to generate (in zic.c) or search through (in localtime.c).
    This is two years larger than the obvious 400, to avoid edge cases.
-   E.g., suppose a non-POSIX.1-2017 rule applies from 2012 on with transitions
-   in March and September, plus one-off transitions in November 2013.
+   E.g., suppose a rule applies from 2012 on with transitions
+   in March and September, plus one-off transitions in November 2013,
+   and suppose the rule cannot be expressed as a proleptic TZ string.
    If zic looked only at the last 400 years, it would set max_year=2413,
    with the intent that the 400 years 2014 through 2413 will be repeated.
    The last transition listed in the tzfile would be in 2413-09,

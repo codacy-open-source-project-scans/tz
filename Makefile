@@ -231,7 +231,7 @@ LDLIBS=
 #	where LDLIBS also needs to contain -lintl on some hosts;
 #	-DHAVE_GETTEXT=0 to avoid using gettext
 #  -DHAVE_INCOMPATIBLE_CTIME_R if your system's time.h declares
-#	ctime_r and asctime_r incompatibly with POSIX.1-2017
+#	ctime_r and asctime_r incompatibly with POSIX.1-2017 and earlier
 #	(Solaris when _POSIX_PTHREAD_SEMANTICS is not defined).
 #  -DHAVE_INTTYPES_H=0 if <inttypes.h> does not work*+
 #  -DHAVE_LINK=0 if your system lacks a link function
@@ -263,8 +263,9 @@ LDLIBS=
 #  -DRESERVE_STD_EXT_IDS if your platform reserves standard identifiers
 #	with external linkage, e.g., applications cannot define 'localtime'.
 #  -Dssize_t=long on hosts like MS-Windows that lack ssize_t
-#  -DSUPPORT_C89 if the tzcode library should support C89 callers+
-#	However, this might trigger latent bugs in C99-or-later callers.
+#  -DSUPPORT_C89=0 if the tzcode library should not support C89 callers
+#	Although -DSUPPORT_C89=0 might work around latent bugs in callers,
+#	it does not conform to POSIX.
 #  -DSUPPORT_POSIX2008 if the library should support older POSIX callers+
 #	However, this might cause problems in POSIX.1-2024-or-later callers.
 #  -DSUPPRESS_TZDIR to not prepend TZDIR to file names; this has
@@ -278,7 +279,7 @@ LDLIBS=
 #  -DTZ_DOMAINDIR=\"/path\" to use "/path" for gettext directory;
 #	the default is system-supplied, typically "/usr/lib/locale"
 #  -DTZDEFRULESTRING=\",date/time,date/time\" to default to the specified
-#	DST transitions for POSIX.1-2017-style TZ strings lacking them,
+#	DST transitions for proleptic format TZ strings lacking them,
 #	in the usual case where POSIXRULES is '-'.  If not specified,
 #	TZDEFRULESTRING defaults to US rules for future DST transitions.
 #	This mishandles some past timestamps, as US DST rules have changed.
@@ -346,9 +347,8 @@ GCC_DEBUG_FLAGS = -DGCC_LINT -g3 -O3 \
 # Similarly, if your system has a "zone abbreviation" field, define
 #	-DTM_ZONE=tm_zone
 # and define NO_TM_ZONE to suppress any guessing.
-# Although these two fields are not required by POSIX.1-2017,
-# POSIX 202x/D4 requires them and they are widely available
-# on GNU/Linux and BSD systems.
+# Although POSIX.1-2024 requires these fields and they are widely available
+# on GNU/Linux and BSD systems, some older systems lack them.
 #
 # The next batch of options control support for external variables
 # exported by tzcode.  In practice these variables are less useful
@@ -358,7 +358,9 @@ GCC_DEBUG_FLAGS = -DGCC_LINT -g3 -O3 \
 # #	-DHAVE_TZNAME=0 # do not support "tzname"
 # #	-DHAVE_TZNAME=1 # support "tzname", which is defined by system library
 # #	-DHAVE_TZNAME=2 # support and define "tzname"
-# # to the "CFLAGS=" line.  "tzname" is required by POSIX.1-1988 and later.
+# # to the "CFLAGS=" line.  Although "tzname" is required by POSIX.1-1988
+# # and later, its contents are unspecified if you use a geographical TZ
+# # and the variable is planned to be removed in a future POSIX edition.
 # # If not defined, the code attempts to guess HAVE_TZNAME from other macros.
 # # Warning: unless time_tz is also defined, HAVE_TZNAME=1 can cause
 # # crashes when combined with some platforms' standard libraries,
@@ -369,7 +371,9 @@ GCC_DEBUG_FLAGS = -DGCC_LINT -g3 -O3 \
 # #	-DUSG_COMPAT=1 # support, and variables are defined by system library
 # #	-DUSG_COMPAT=2 # support and define variables
 # # to the "CFLAGS=" line; "timezone" and "daylight" are inspired by Unix
-# # Systems Group code and are required by POSIX.1-2008 and later (with XSI).
+# # Systems Group code and are required by POSIX.1-2008 and later (with XSI),
+# # although their contents are unspecified if you use a geographical TZ
+# # and the variables are planned to be removed in a future edition of POSIX.
 # # If not defined, the code attempts to guess USG_COMPAT from other macros.
 # #
 # # To support the external variable "altzone", add
@@ -433,7 +437,7 @@ GCC_DEBUG_FLAGS = -DGCC_LINT -g3 -O3 \
 
 # The name of a POSIX-like library archiver, its flags, C compiler,
 # linker flags, and 'make' utility.  Ordinarily the defaults suffice.
-# The commented-out values are the defaults specified by POSIX.1-202x/D4.
+# The commented-out values are the defaults specified by POSIX.1-2024.
 #AR = ar
 #ARFLAGS = -rv
 #CC = c17
@@ -1053,7 +1057,7 @@ zdump.8.txt:	zdump.8
 zic.8.txt:	zic.8
 
 $(MANTXTS):	workman.sh
-		LC_ALL=C sh workman.sh $(@.txt=) >$@.out
+		LC_ALL=C sh workman.sh $(@:.txt=) >$@.out
 		mv $@.out $@
 
 # Set file timestamps deterministically if possible,
